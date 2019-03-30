@@ -19,6 +19,9 @@ object Logic {
         session = new Session(rest, firstWord)
         Some(returnWord(firstWord))
       case (Some(answer), None) =>
+
+        println(session)
+
         val wordFromAnswer = session.currentWord.copy(tibetan = answer)
         if (wordFromAnswer == session.currentWord) {
           newWord()
@@ -39,6 +42,7 @@ object Logic {
   }
 
   def newWord(): Option[Word] = {
+    val result =
     if (session.unanswered.nonEmpty) {
       val (word, rest) = randomFromSeq(session.unanswered)
       session.copy(
@@ -56,6 +60,8 @@ object Logic {
     } else {
       None
     }
+    println(result)
+    result
   }
 
   case class Session(unanswered: Seq[Word], currentWord: Word, toRepeat: Seq[Word] = Nil)

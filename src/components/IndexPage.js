@@ -17,7 +17,6 @@ export default class IndexPage extends React.Component {
     const target = event.target;
     const name = target.name;
     if (name === 'submit') {
-        console.log(this.state);
       const data = JSON.stringify(this.state);
       jquery.ajax({
         type: "POST",
