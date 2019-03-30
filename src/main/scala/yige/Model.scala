@@ -6,6 +6,10 @@ object Model {
 
   case class Wylie(text: String)
 
-  case class Answer(text: Option[String], chapter: Option[String])
+  case class Answer(text: String)
+
+  case class SelectChapter(chapter: String)
+
+  case class Chapter(name: String)
 
 }

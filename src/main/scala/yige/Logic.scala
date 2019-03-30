@@ -1,6 +1,6 @@
 package yige
 
-import yige.Model.{Answer, Word}
+import yige.Model.{Answer, SelectChapter, Word}
 
 import scala.util.Random
 
@@ -12,25 +12,21 @@ object Logic {
     word.copy(tibetan = "")
   }
 
+  def processSelectChapter(selectChapter: SelectChapter): Option[Word] = {
+    val Seq(firstWord, rest @  _*) = Random.shuffle(Db.allWordsFromChapter(selectChapter.chapter))
+    session = new Session(rest, firstWord)
+    Some(returnWord(firstWord))
+  }
+
   def processAnswer(answer: Answer): Option[Word] = {
-    (answer.text, answer.chapter) match {
-      case (None, Some(chapter)) =>
-        val Seq(firstWord, rest @  _*) = Db.allWordsFromChapter(chapter)
-        session = new Session(rest, firstWord)
-        Some(returnWord(firstWord))
-      case (Some(answer), None) =>
-
-        println(session)
-
-        val wordFromAnswer = session.currentWord.copy(tibetan = answer)
-        if (wordFromAnswer == session.currentWord) {
-          newWord()
-        } else {
-          session.copy(
-            toRepeat = session.toRepeat ++ Seq(session.currentWord, session.currentWord),
-          )
-          newWord()
-        }
+    val wordFromAnswer = session.currentWord.copy(tibetan = answer.text)
+    if (wordFromAnswer == session.currentWord) {
+      newWord()
+    } else {
+      session = session.copy(
+        toRepeat = session.toRepeat ++ Seq(session.currentWord, session.currentWord),
+      )
+      newWord()
     }
   }
 
@@ -45,14 +41,14 @@ object Logic {
     val result =
     if (session.unanswered.nonEmpty) {
       val (word, rest) = randomFromSeq(session.unanswered)
-      session.copy(
+      session = session.copy(
         unanswered = rest,
         currentWord = word,
       )
       Some(word)
     } else if(session.toRepeat.nonEmpty) {
       val (word, rest) = randomFromSeq(session.toRepeat)
-      session.copy(
+      session = session.copy(
         toRepeat = rest,
         currentWord = word,
       )
@@ -60,8 +56,7 @@ object Logic {
     } else {
       None
     }
-    println(result)
-    result
+    result.map(returnWord)
   }
 
   case class Session(unanswered: Seq[Word], currentWord: Word, toRepeat: Seq[Word] = Nil)

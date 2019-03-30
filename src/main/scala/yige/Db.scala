@@ -2,9 +2,15 @@ package yige
 
 import java.sql.{Connection, DriverManager, PreparedStatement, ResultSet}
 
-import yige.Model.Word
+import yige.Model.{Chapter, Word}
 
 object Db {
+  def allChapters(): Seq[Chapter] = {
+    executeQuery("SELECT DISTINCT chapter FROM word", Nil, { (rs: ResultSet) =>
+      Chapter(rs.getString("chapter"))
+    })
+  }
+
 
   def insertWord(word: Word) = {
     executeUpdate("INSERT INTO word(tibetan, english, chapter) VALUES (?, ?, ?)",
@@ -17,7 +23,7 @@ object Db {
   }
 
   def allWords(): Seq[Word] = {
-    executeQuery("SELECT * FROM word", Seq.empty, {(rs: ResultSet) =>
+    executeQuery("SELECT * FROM word", Seq.empty, { (rs: ResultSet) =>
       val tibetan = rs.getString("tibetan")
       val english = rs.getString("english")
       val chapter = rs.getString("chapter")
@@ -26,7 +32,7 @@ object Db {
   }
 
   def allWordsFromChapter(chapter: String): Seq[Word] = {
-    executeQuery("SELECT * FROM word WHERE chapter = ?", Seq(stringParameter(chapter)), {(rs: ResultSet) =>
+    executeQuery("SELECT * FROM word WHERE chapter = ?", Seq(stringParameter(chapter)), { (rs: ResultSet) =>
       val tibetan = rs.getString("tibetan")
       val english = rs.getString("english")
       Word(tibetan, english, chapter)

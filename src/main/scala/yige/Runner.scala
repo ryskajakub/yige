@@ -6,7 +6,7 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
-import yige.Model.{Answer, Word, Wylie}
+import yige.Model.{Answer, SelectChapter, Word, Wylie}
 
 import scala.io.StdIn
 
@@ -52,6 +52,21 @@ object Runner extends SprayJsonSupport {
               complete {
                 Logic.processAnswer(answer)
               }
+          }
+        }
+      } ~ path("selectChapter") {
+        post {
+          entity(as[SelectChapter]) {
+            answer =>
+              complete {
+                Logic.processSelectChapter(answer)
+              }
+          }
+        }
+      } ~ path("chapter" ) {
+        get {
+          complete {
+            Db.allChapters()
           }
         }
       }

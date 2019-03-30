@@ -9,13 +9,32 @@ export default class IndexPage extends React.Component {
     this.state = {
       "page": "begin"
     };
+    const t = this;
     this.answer = this.answer.bind(this);
     this.handleChapter = this.handleChapter.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.selectChapter = this.selectChapter.bind(this);
+    this.answerEnter = this.answerEnter.bind(this);
+    this.again = this.again.bind(this);
+    jquery.ajax({
+      type: "GET",
+      url: "http://localhost:8082/api/chapter",
+      dataType:"json",
+      complete: (data) => {
+        t.setState({
+          "chapters": data.responseJSON
+        });
+        this.setState({
+          "chapter": data.responseJSON[0].name
+        });
+      }
+    });
   }
 
   handleChange(event) {
+
+    event.preventDefault();
+
     const t = this;
     const target = event.target;
     const name = target.name;
@@ -39,7 +58,6 @@ export default class IndexPage extends React.Component {
         t.setState({
           "tibetan": data.responseText
         })
-        console.log(t.state);
       }
     })
 
@@ -55,12 +73,11 @@ export default class IndexPage extends React.Component {
     const t = this;
     jquery.ajax({
       type: "POST",
-      url: "http://localhost:8082/api/answer",
+      url: "http://localhost:8082/api/selectChapter",
       data: JSON.stringify({"chapter": t.state.chapter}),
       contentType:"application/json; charset=utf-8",
       dataType:"json",
       complete: (data) => {
-        console.log(data);
         t.setState(data.responseJSON)
         t.setState({"page": "word"});
         t.setState({"wylie": ""});
@@ -77,8 +94,6 @@ export default class IndexPage extends React.Component {
       contentType:"application/json; charset=utf-8",
       dataType:"json",
       complete: (data) => {
-        console.log(data);
-        console.log(data.responseJSON);
         if (data.responseJSON === undefined) {
           t.setState({"page": "end"});
         } else {
@@ -89,6 +104,13 @@ export default class IndexPage extends React.Component {
     });
   }
 
+  answerEnter(event) {
+    event.preventDefault();
+    if (event.key === "Enter") {
+      this.answer();
+    }
+  }
+
   word() {
     return (
       <Col xs={{ offset: 4, size: 4 }}>
@@ -96,7 +118,7 @@ export default class IndexPage extends React.Component {
         <Form>
           <FormGroup>
             <Label for="wylie">Wylie</Label>
-            <Input size="lg" type="text" name="wylie" id="wylie" placeholder="type in wylie" value={this.state.tibetan} onKeyUp={this.handleChange}  />
+            <Input size="lg" type="text" name="wylie" id="wylie" placeholder="type in wylie" value={this.state.tibetan} onKeyUp={this.handleChange} onKeyPress={this.answerEnter} />
           </FormGroup>
           <Button size="lg" name="submit" onClick={this.answer}>Answer</Button>
         </Form>
@@ -111,18 +133,36 @@ export default class IndexPage extends React.Component {
         <Form>
           <FormGroup>
             <Label for="chapter">Chapter</Label>
-            <Input size="lg" type="text" name="chapter" id="chapter" placeholder="select chapter" value={this.state.chapter} onChange={this.handleChapter}  />
+            {
+              (this.state.chapters === undefined) ? ( <div></div> ) : (
+              <Input type="select" name="chapter" id="chapter" onChange={this.handleChapter}>
+              {
+                this.state.chapters.map((value, index) => {
+                  return <option key={value.name} value={value.name}>{value.name}</option>
+                })
+              }
+             </Input>
+              )
+            }
           </FormGroup>
-          <Button size="lg" name="submit" onClick={this.selectChapter}>Answer</Button>
+          <Button size="lg" name="submit" onClick={this.selectChapter}>Select</Button>
         </Form>
       </Col>
     );
+  }
+
+  again() {
+    this.setState({
+      "page": "begin",
+      "chapter": this.state.chapters[0].name
+    });
   }
 
   end() {
     return(
       <Col xs={{ offset: 4, size: 4}}>
         <h1>Victory!</h1>
+        <Button color="primary" onClick={this.again}>Try again</Button>
       </Col>
     )
   }
