@@ -1,0 +1,7 @@
+.idea/
+.gradle/
+yige.iml
+babel_cache/
+node_modules/
+build/
+out/

@@ -1,0 +1,22 @@
+plugins {
+    id 'scala'
+}
+
+dependencies {
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.typesafe.akka', name: 'akka-http_2.12',   version: '10.1.7'
+    compile group: 'com.typesafe.akka', name: 'akka-stream_2.12', version: '2.5.19'
+    compile group: 'com.typesafe.akka', name: 'akka-http-spray-json_2.12', version: '10.1.7'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.24'
+    compile group: 'io.bdrc.ewtsconverter', name: 'ewts-converter', version: '1.4.2'
+
+    implementation 'org.scala-lang:scala-library:2.11.12'
+    testImplementation 'org.scalatest:scalatest_2.11:3.0.0'
+    testImplementation 'junit:junit:4.12'
+}
