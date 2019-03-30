@@ -81,12 +81,14 @@ export default class IndexPage extends React.Component {
         t.setState(data.responseJSON)
         t.setState({"page": "word"});
         t.setState({"wylie": ""});
+        t.setState({"tibetan": ""});
       }
     });
   }
 
   answer() {
     const t = this;
+    t.setState({"tibetanAnswer": undefined});
     jquery.ajax({
       type: "POST",
       url: "http://localhost:8082/api/answer",
@@ -94,11 +96,14 @@ export default class IndexPage extends React.Component {
       contentType:"application/json; charset=utf-8",
       dataType:"json",
       complete: (data) => {
-        if (data.responseJSON === undefined) {
-          t.setState({"page": "end"});
-        } else {
-          t.setState(data.responseJSON);
-          t.setState({"wylie": ""});
+        if (data.status < 300) {
+          if (data.responseJSON === undefined) {
+            t.setState({"page": "end"});
+          } else {
+            t.setState(data.responseJSON);
+            t.setState({"wylie": ""});
+            t.setState({"tibetan": ""});
+          }
         }
       }
     });
@@ -116,6 +121,9 @@ export default class IndexPage extends React.Component {
       <Col xs={{ offset: 4, size: 4 }}>
         <h1> { this.state.english } </h1>
         <Form>
+          { (this.state.tibetanAnswer === undefined) ? "" :
+          <h2>Correct answer: {this.state.tibetanAnswer} </h2>
+          }
           <FormGroup>
             <Label for="wylie">Wylie</Label>
             <Input size="lg" type="text" name="wylie" id="wylie" placeholder="type in wylie" value={this.state.tibetan} onKeyUp={this.handleChange} onKeyPress={this.answerEnter} />
@@ -154,7 +162,8 @@ export default class IndexPage extends React.Component {
   again() {
     this.setState({
       "page": "begin",
-      "chapter": this.state.chapters[0].name
+      "chapter": this.state.chapters[0].name,
+      "tibetan" : ""
     });
   }
 

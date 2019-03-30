@@ -2,6 +2,8 @@ package yige
 
 object Model {
 
+  case class WordTask(english: String, tibetanAnswer: Option[String])
+
   case class Word(tibetan: String, english: String, chapter: String)
 
   case class Wylie(text: String)

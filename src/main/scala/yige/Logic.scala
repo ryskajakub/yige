@@ -1,6 +1,6 @@
 package yige
 
-import yige.Model.{Answer, SelectChapter, Word}
+import yige.Model._
 
 import scala.util.Random
 
@@ -8,17 +8,20 @@ object Logic {
 
   var session: Session = null
 
-  def returnWord(word: Word): Word = {
-    word.copy(tibetan = "")
+  def returnWord(word: Word): WordTask = {
+    WordTask(
+      english = word.english,
+      tibetanAnswer = None,
+    )
   }
 
-  def processSelectChapter(selectChapter: SelectChapter): Option[Word] = {
+  def processSelectChapter(selectChapter: SelectChapter): Option[WordTask] = {
     val Seq(firstWord, rest @  _*) = Random.shuffle(Db.allWordsFromChapter(selectChapter.chapter))
     session = new Session(rest, firstWord)
     Some(returnWord(firstWord))
   }
 
-  def processAnswer(answer: Answer): Option[Word] = {
+  def processAnswer(answer: Answer): Option[WordTask] = {
     val wordFromAnswer = session.currentWord.copy(tibetan = answer.text)
     if (wordFromAnswer == session.currentWord) {
       newWord()
@@ -26,7 +29,10 @@ object Logic {
       session = session.copy(
         toRepeat = session.toRepeat ++ Seq(session.currentWord, session.currentWord),
       )
-      newWord()
+      Some(WordTask(
+        english = session.currentWord.english,
+        tibetanAnswer = Some(session.currentWord.tibetan),
+      ))
     }
   }
 
@@ -37,25 +43,25 @@ object Logic {
     word -> rest
   }
 
-  def newWord(): Option[Word] = {
+  def newWord(): Option[WordTask] = {
     val result =
-    if (session.unanswered.nonEmpty) {
-      val (word, rest) = randomFromSeq(session.unanswered)
-      session = session.copy(
-        unanswered = rest,
-        currentWord = word,
-      )
-      Some(word)
-    } else if(session.toRepeat.nonEmpty) {
-      val (word, rest) = randomFromSeq(session.toRepeat)
-      session = session.copy(
-        toRepeat = rest,
-        currentWord = word,
-      )
-      Some(word)
-    } else {
-      None
-    }
+      if (session.unanswered.nonEmpty) {
+        val (word, rest) = randomFromSeq(session.unanswered)
+        session = session.copy(
+          unanswered = rest,
+          currentWord = word,
+        )
+        Some(word)
+      } else if(session.toRepeat.nonEmpty) {
+        val (word, rest) = randomFromSeq(session.toRepeat)
+        session = session.copy(
+          toRepeat = rest,
+          currentWord = word,
+        )
+        Some(word)
+      } else {
+        None
+      }
     result.map(returnWord)
   }
 
