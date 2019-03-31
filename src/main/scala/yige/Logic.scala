@@ -21,8 +21,8 @@ object Logic {
   def processSelectChapter(selectChapter: SelectChapter): Option[WordTask] = {
     val Seq(firstWord, rest @  _*) = Random.shuffle(Db.allWordsFromChapter(selectChapter.chapter))
     val basicTotal = rest.length + 1
-    session = new Session(firstWord +: rest, firstWord, basicTotal)
-    Some(returnWord(firstWord, 0, 0, basicTotal))
+    session = new Session(rest, firstWord, basicTotal)
+    Some(returnWord(firstWord, 1, 0, basicTotal))
   }
 
   def processAnswer(answer: Answer): Option[WordTask] = {
