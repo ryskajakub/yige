@@ -1,6 +1,6 @@
 import React from 'react';
 import jquery from 'jquery';
-import { Form, FormGroup, Button, Label, Input, Col } from 'reactstrap';
+import { Form, FormGroup, Button, Label, Input, Col, Progress, Badge } from 'reactstrap';
 
 export default class IndexPage extends React.Component {
 
@@ -16,6 +16,7 @@ export default class IndexPage extends React.Component {
     this.selectChapter = this.selectChapter.bind(this);
     this.answerEnter = this.answerEnter.bind(this);
     this.again = this.again.bind(this);
+    this.remaining = this.remaining.bind(this);
     jquery.ajax({
       type: "GET",
       url: "http://localhost:8082/api/chapter",
@@ -79,9 +80,11 @@ export default class IndexPage extends React.Component {
       dataType:"json",
       complete: (data) => {
         t.setState(data.responseJSON)
-        t.setState({"page": "word"});
-        t.setState({"wylie": ""});
-        t.setState({"tibetan": ""});
+        t.setState({
+          "page": "word",
+          "wylie": "",
+          "tibetan": ""
+        });
       }
     });
   }
@@ -101,8 +104,10 @@ export default class IndexPage extends React.Component {
             t.setState({"page": "end"});
           } else {
             t.setState(data.responseJSON);
-            t.setState({"wylie": ""});
-            t.setState({"tibetan": ""});
+            t.setState({
+              "wylie": "",
+              "tibetan": ""
+             });
           }
         }
       }
@@ -116,9 +121,28 @@ export default class IndexPage extends React.Component {
     }
   }
 
+  safelyDivide(finished, total) {
+    console.log(finished, total);
+    return (finished >= 0 && total > 0 ? finished / total / 0.01 : 0);
+  }
+
+  displayProgress(finished, total) {
+    const f = finished >= 0 ? finished : 0;
+    const t = total >= 0 ? total : 0;
+    return f + "/" + t;
+  }
+
+  remaining() {
+    return (this.state.repeatedRemaining >= 0 ? this.state.repeatedRemaining : 0)
+  }
+
   word() {
     return (
       <Col xs={{ offset: 4, size: 4 }}>
+        <Progress value={this.safelyDivide(this.state.basicFinished, this.state.basicTotal)}>
+          { this.displayProgress(this.state.basicFinished, this.state.basicTotal) }
+        </Progress>
+        <Badge color="warning">{this.remaining()}</Badge>
         <h1> { this.state.english } </h1>
         <Form>
           { (this.state.tibetanAnswer === undefined) ? "" :
