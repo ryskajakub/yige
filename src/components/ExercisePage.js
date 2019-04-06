@@ -122,7 +122,6 @@ export default class IndexPage extends React.Component {
   }
 
   safelyDivide(finished, total) {
-    console.log(finished, total);
     return (finished >= 0 && total > 0 ? finished / total / 0.01 : 0);
   }
 
@@ -150,7 +149,7 @@ export default class IndexPage extends React.Component {
           }
           <FormGroup>
             <Label for="wylie">Wylie</Label>
-            <Input size="lg" type="text" name="wylie" id="wylie" placeholder="type in wylie" value={this.state.tibetan} onKeyUp={this.handleChange} onKeyPress={this.answerEnter} />
+            <Input autoComplete="off" size="lg" type="text" name="wylie" id="wylie" placeholder="type in wylie" value={this.state.tibetan} onKeyUp={this.handleChange} onKeyPress={this.answerEnter} />
           </FormGroup>
           <Button size="lg" name="submit" onClick={this.answer}>Answer</Button>
         </Form>

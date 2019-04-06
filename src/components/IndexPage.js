@@ -4,9 +4,11 @@ import { Form, FormGroup, Button, Label, Input, Col } from 'reactstrap';
 
 export default class IndexPage extends React.Component {
 
+
   constructor(props) {
     super(props);
-    this.state = {english: '', wylie: '', chapter: '', tibetan: ''};
+    this.defaultState = {english: '', wylie: '', chapter: '', tibetan: ''};
+    this.state = this.defaultState;
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -24,6 +26,9 @@ export default class IndexPage extends React.Component {
         data: data,
         contentType:"application/json; charset=utf-8",
         dataType:"json",
+        complete: (data) => {
+          t.setState(t.defaultState);
+        }
       });
     } else if (name === 'wylie') {
       const savedState = this.state.wylie;
@@ -44,9 +49,9 @@ export default class IndexPage extends React.Component {
         complete: function (data) {
           t.setState({
             "tibetan": data.responseText
-          })
+          });
         }
-      })
+      });
     } else {
       this.setState({
          [name]: target.value
@@ -63,12 +68,12 @@ export default class IndexPage extends React.Component {
                     <Input size="lg" type="text" name="wylie" id="wylie" placeholder="type in wylie" value={this.state.tibetan} onKeyUp={this.handleChange}  />
                 </FormGroup>
                 <FormGroup>
-                    <Label for="wylie">English</Label>
-                    <Input size="lg" type="text" name="english" id="english" placeholder="english"  onChange={this.handleChange} />
+                    <Label for="english">English</Label>
+                    <Input size="lg" type="text" name="english" id="english" placeholder="english" value={this.state.english} onChange={this.handleChange} />
                 </FormGroup>
                 <FormGroup>
-                    <Label for="wylie">Chapter</Label>
-                    <Input size="lg" type="text" name="chapter" id="chapter" placeholder="chapter" onChange={this.handleChange}  />
+                    <Label for="chapter">Chapter</Label>
+                    <Input size="lg" type="text" name="chapter" id="chapter" placeholder="chapter" value={this.state.chapter} onChange={this.handleChange}  />
                 </FormGroup>
                 <Button size="lg" name="submit" onClick={this.handleChange}>Submit</Button>
             </Form>
