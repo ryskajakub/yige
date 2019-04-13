@@ -2,7 +2,7 @@ package yige
 
 object Model {
 
-  case class WordTask(english: String, tibetanAnswer: Option[String], basicFinished: Int, repeatedRemaining: Int, basicTotal: Int)
+  case class WordTask(english: String, tibetanAnswer: Option[String], remaining: Int, total: Int)
 
   case class Word(tibetan: String, english: String, chapter: String)
 

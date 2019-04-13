@@ -8,21 +8,20 @@ object Logic {
 
   var session: Session = null
 
-  def returnWord(word: Word, basicFinished: Int, repeatedRemaining: Int, basicTotal: Int): WordTask = {
+  def returnWord(word: Word, total: Int, remaining: Int): WordTask = {
     WordTask(
       english = word.english,
       tibetanAnswer = None,
-      basicFinished = basicFinished,
-      repeatedRemaining = repeatedRemaining,
-      basicTotal = basicTotal,
+      remaining = remaining,
+      total = total,
     )
   }
 
   def processSelectChapter(selectChapter: SelectChapter): Option[WordTask] = {
-    val Seq(firstWord, rest @  _*) = Random.shuffle(Db.allWordsFromChapter(selectChapter.chapter))
+    val (firstWord, rest) = randomFromSeq(Db.allWordsFromChapter(selectChapter.chapter))
     val basicTotal = rest.length + 1
     session = new Session(rest, firstWord, basicTotal)
-    Some(returnWord(firstWord, 1, 0, basicTotal))
+    Some(returnWord(firstWord, basicTotal, basicTotal))
   }
 
   def processAnswer(answer: Answer): Option[WordTask] = {
@@ -31,14 +30,14 @@ object Logic {
       newWord()
     } else {
       session = session.copy(
-        toRepeat = session.toRepeat ++ Seq(session.currentWord, session.currentWord),
+        total = session.total + 2,
+        unanswered = session.unanswered ++ Seq(session.currentWord, session.currentWord),
       )
       Some(WordTask(
         english = session.currentWord.english,
         tibetanAnswer = Some(session.currentWord.tibetan),
-        basicFinished = session.chapterLength - session.unanswered.length,
-        repeatedRemaining = session.toRepeat.length,
-        basicTotal = session.chapterLength,
+        total = session.total,
+        remaining = session.unanswered.length,
       ))
     }
   }
@@ -59,19 +58,16 @@ object Logic {
           currentWord = word,
         )
         Some(word)
-      } else if(session.toRepeat.nonEmpty) {
-        val (word, rest) = randomFromSeq(session.toRepeat)
-        session = session.copy(
-          toRepeat = rest,
-          currentWord = word,
-        )
-        Some(word)
       } else {
         None
       }
-    result.map(w => returnWord(w, session.chapterLength - session.unanswered.length, session.toRepeat.length, session.chapterLength))
+    result.map(word => returnWord(
+      word = word,
+      remaining = session.unanswered.length,
+      total = session.total,
+    ))
   }
 
-  case class Session(unanswered: Seq[Word], currentWord: Word, chapterLength: Int, toRepeat: Seq[Word] = Nil)
+  case class Session(unanswered: Seq[Word], currentWord: Word, total: Int)
 
 }

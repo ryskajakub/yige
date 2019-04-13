@@ -1,13 +1,11 @@
-plugins {
-    id 'scala'
-}
-
-dependencies {
-}
-
 repositories {
     mavenCentral()
 }
+
+apply plugin: 'application'
+apply plugin: 'scala'
+
+mainClassName = "yige.Runner"
 
 dependencies {
     compile group: 'com.typesafe.akka', name: 'akka-http_2.12',   version: '10.1.7'

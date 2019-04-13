@@ -16,7 +16,6 @@ export default class IndexPage extends React.Component {
     this.selectChapter = this.selectChapter.bind(this);
     this.answerEnter = this.answerEnter.bind(this);
     this.again = this.again.bind(this);
-    this.remaining = this.remaining.bind(this);
     jquery.ajax({
       type: "GET",
       url: "http://localhost:8082/api/chapter",
@@ -131,17 +130,12 @@ export default class IndexPage extends React.Component {
     return f + "/" + t;
   }
 
-  remaining() {
-    return (this.state.repeatedRemaining >= 0 ? this.state.repeatedRemaining : 0)
-  }
-
   word() {
     return (
       <Col xs={{ offset: 4, size: 4 }}>
-        <Progress value={this.safelyDivide(this.state.basicFinished, this.state.basicTotal)}>
-          { this.displayProgress(this.state.basicFinished, this.state.basicTotal) }
+        <Progress value={this.safelyDivide(this.state.total - this.state.remaining, this.state.total)}>
+          { this.displayProgress(this.state.total - this.state.remaining, this.state.total) }
         </Progress>
-        <Badge color="warning">{this.remaining()}</Badge>
         <h1> { this.state.english } </h1>
         <Form>
           { (this.state.tibetanAnswer === undefined) ? "" :

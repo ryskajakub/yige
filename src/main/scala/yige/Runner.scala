@@ -10,9 +10,7 @@ import yige.Model.{Answer, SelectChapter, Word, Wylie}
 
 import scala.io.StdIn
 
-object Runner extends SprayJsonSupport {
-
-  def main(args: Array[String]) {
+object Runner extends SprayJsonSupport with App {
 
     implicit val system = ActorSystem("my-system")
     implicit val materializer = ActorMaterializer()
@@ -78,5 +76,4 @@ object Runner extends SprayJsonSupport {
     bindingFuture
       .flatMap(_.unbind()) // trigger unbinding from the port
       .onComplete(_ => system.terminate()) // and shutdown when done
-  }
 }
