@@ -5,6 +5,10 @@ repositories {
 apply plugin: 'application'
 apply plugin: 'scala'
 
+run{
+    standardInput = System.in
+}
+
 mainClassName = "yige.Runner"
 
 dependencies {
